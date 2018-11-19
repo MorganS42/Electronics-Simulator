@@ -4,7 +4,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=40;
+float cs=20;
 
 float tx;
 float ty;
@@ -21,7 +21,7 @@ int gid=0;
 void setup() {
   fullScreen();
   //frameRate(10);
-  strokeWeight(5);  
+  strokeWeight(cs/8);  
 }
 
 void draw() {
@@ -45,6 +45,53 @@ void draw() {
         } 
       }
     }
+    
+    
+    if(key=='z') {
+      if(!press) {
+        press=true;
+        
+        float xx=mouseX;
+        float yy=mouseY;
+        
+        for(Wire wire : wires) {
+          if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
+            xx=wire.x1;
+            yy=wire.y1;
+          }
+          if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
+            xx=wire.x2;
+            yy=wire.y2;
+          }
+        }
+        
+        and(xx,yy);
+      }
+    }
+    
+    
+    if(key=='x') {
+      if(!press) {
+        press=true;
+        
+        float xx=mouseX;
+        float yy=mouseY;
+        
+        for(Wire wire : wires) {
+          if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
+            xx=wire.x1;
+            yy=wire.y1;
+          }
+          if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
+            xx=wire.x2;
+            yy=wire.y2;
+          }
+        }
+        
+        xor(xx,yy);
+      }
+    }
+    
     
     if(key=='c') {
       if(!press) {
@@ -84,6 +131,63 @@ void draw() {
         
         xor(xx,yy-cs*4.5);
         xor(xx,yy-cs*12); 
+      }
+    }
+    
+    if(key=='v') {
+      if(!press) {
+        press=true;
+        
+        float xx=mouseX;
+        float yy=mouseY;
+        
+        for(Wire wire : wires) {
+          if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
+            xx=wire.x1;
+            yy=wire.y1;
+          }
+          if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
+            xx=wire.x2;
+            yy=wire.y2;
+          }
+        }
+        
+        wires.add(new Wire(xx,yy,xx,yy-cs*4.5,cs,false,gid));
+        gid++;
+        
+        wires.add(new Wire(xx+cs*1.2,yy,xx+cs*1.2,yy-cs*4.5,cs,false,gid));
+        gid++;
+        
+        wires.add(new Wire(xx,yy-cs*4.5,xx+cs*4,yy-cs*4.5,cs,true,gid));
+        gid++;
+        
+        wires.add(new Wire(xx+cs*1.2,yy-cs*4.5,xx+cs*5.2,yy-cs*4.5,cs,false,gid));
+        gid++;
+        
+        xor(xx,yy-cs*4.5);
+        and(xx+cs*4,yy-cs*4.5);
+        
+        wires.add(new Wire(xx,yy-cs*12,xx+cs*4,yy-cs*12,cs,true,gid));
+        gid++;
+        
+        wires.add(new Wire(xx+cs*1.2,yy-cs*12,xx+cs*5.2,yy-cs*12,cs,false,gid));
+        gid++;
+        
+        xor(xx,yy-cs*12);
+        and(xx+cs*4,yy-cs*12);
+                
+        wires.add(new Wire(xx-cs*2.25,yy-cs*10.5,xx,yy-cs*12,cs,false,gid));
+        gid++;
+        
+        wires.add(new Wire(xx-cs*4.25,yy-cs*10.5,xx+cs*1.2,yy-cs*12,cs,false,gid));
+        gid++;
+        
+        wires.add(new Wire(xx+cs*7,yy-cs*9,xx+cs*8,yy-cs*13,cs,false,gid));
+        gid++;
+        
+        wires.add(new Wire(xx+cs*7,yy-cs*16.5,xx+cs*8,yy-cs*13,cs,false,gid));
+        gid++;
+        
       }
     }
   }
