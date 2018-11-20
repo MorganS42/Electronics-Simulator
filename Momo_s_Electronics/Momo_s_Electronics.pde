@@ -4,7 +4,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=20;
+float cs=8;
 
 float tx;
 float ty;
@@ -19,9 +19,13 @@ boolean dl=false;
 int gid=0;
 
 void setup() {
-  fullScreen();
+  size(2400,1600);
   //frameRate(10);
   strokeWeight(cs/8);  
+  
+  int mi = 32; //max i
+  
+  ca(mi);
 }
 
 void draw() {
@@ -111,26 +115,7 @@ void draw() {
           }
         }
         
-        wires.add(new Wire(xx,yy,xx,yy-cs*4.5,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*1.2,yy,xx+cs*1.2,yy-cs*4.5,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*2.4,yy-cs*3,xx+cs*1.2,yy-cs*12,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx-cs*2.25,yy-cs*10.5,xx,yy-cs*12,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*3,yy-cs*9,xx+cs*4,yy-cs*13,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*3,yy-cs*16.5,xx+cs*4,yy-cs*13,cs,false,gid));
-        gid++;
-        
-        xor(xx,yy-cs*4.5);
-        xor(xx,yy-cs*12); 
+        fa(xx,yy); 
       }
     }
     
@@ -398,4 +383,50 @@ void and(float xx, float yy) {
   gid++;
   wires.add(new Wire(xx+cs*1.8,yy-cs*4.5,xx+cs*3,yy-cs*4.5,cs,false,gid));
   gid++;
+}
+
+void fa(float xx, float yy) {
+  wires.add(new Wire(xx,yy,xx,yy-cs*4.5,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*1.2,yy,xx+cs*1.2,yy-cs*4.5,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*2.4,yy-cs*3,xx+cs*1.2,yy-cs*12,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx-cs*2.25,yy-cs*10.5,xx,yy-cs*12,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*3,yy-cs*9,xx+cs*4,yy-cs*13,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*3,yy-cs*16.5,xx+cs*4,yy-cs*13,cs,false,gid));
+  gid++;
+  
+  xor(xx,yy-cs*4.5);
+  xor(xx,yy-cs*12);  
+}
+
+void ca(int mi) {
+  for(int i=0; i<mi; i++) {
+    fa(i*cs*9+cs*5,height/2);  
+    wires.add(new Wire(i*cs*9+cs*5+cs*4,height/2-cs*13,cs*9+i*cs*9+cs*5+cs*2.4,height/2-cs*3,cs,false,gid));
+    gid++;
+    
+    wires.add(new Wire(i*cs*9+cs*5-cs*2.25,height/2-cs*18,width-(i*cs*9+cs*5),cs*5,cs,false,gid));
+    gid++;
+    
+    wires.add(new Wire(-(i*cs*2)+cs*mi*2,height/2+cs*8,i*cs*9+cs*5,height/2,cs,false,gid));
+    gid++;
+    
+    wires.add(new Wire(-(i*cs*2)+cs*mi*2,height/2+height/10,-(i*cs*2)+cs*mi*2,height/2+cs*8,cs,false,gid));
+    gid++;
+    
+    wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+cs*8,i*cs*9+cs*5,height/2,cs,false,gid));
+    gid++;
+    
+    wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+height/10,width-(i*cs*2)-cs*2,height/2+cs*8,cs,false,gid));
+    gid++;
+  }  
 }
