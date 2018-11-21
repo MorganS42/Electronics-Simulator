@@ -1,10 +1,14 @@
 ArrayList<Wire> wires = new ArrayList<Wire>(); 
+ArrayList<LED> leds = new ArrayList<LED>(); 
+ArrayList<Switch> swts = new ArrayList<Switch>(); 
+
+tb tools;
 
 boolean click=false;
 
 boolean press=false;
 
-float cs=8;
+float cs=30;
 
 float tx;
 float ty;
@@ -16,6 +20,8 @@ boolean first=true;
 
 boolean dl=false;
 
+boolean dm=true; //dark mode
+
 int gid=0;
 
 void setup() {
@@ -23,17 +29,31 @@ void setup() {
   //frameRate(10);
   strokeWeight(cs/8);  
   
-  int mi = 32; //max i
+  int mi = 8; //max i
   
-  ca(mi);
+  tools = new tb(50,height/2-200,50,4);
+  //ca(mi);
 }
 
-void draw() {
-  background(255);
+void draw() {  
+  if(dm) {
+    background(0);  
+  }
+  else {
+    background(255);  
+  }
+  strokeWeight(cs/8);
   for(Wire wire : wires) {
     wire.d();
     wire.u();
   }
+  
+  for(LED led : leds) {
+    led.d();
+    led.u();
+  }
+  
+  tools.d();
   
   if(keyPressed) {
     if(key==' ') {
@@ -202,10 +222,13 @@ void draw() {
               ty=wire.y2;  
             }
           }
+          if(key=='l') {
+            leds.add(new LED(tx,ty,cs*1.5));
+          }
         }
         else {
           txx=mouseX;
-            tyy=mouseY;
+          tyy=mouseY;
             for(Wire wire : wires) {
               if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
                 txx=wire.x1;
@@ -224,6 +247,10 @@ void draw() {
             else {
               wires.add(new Wire(tx,ty,txx,tyy,cs,false,gid));
               gid++;
+            }
+            if(key=='l') {
+              //leds.add(new LED(tx,ty,cs*1.5));
+              leds.add(new LED(txx,tyy,cs*1.5));
             }
           }
           tx=txx;
@@ -262,21 +289,35 @@ class Wire {
   }
   
   void d() {
-    
+    fill(100);
     if(on) {
       stroke(0,255,0);  
       if(i) {
         stroke(0,100,0);  
+        if(dm) {
+          stroke(0,180,0);  
+          fill(0,180,0);  
+        }
+      }
+      else if(dm) {
+        fill(0,255,0);  
       }
     }
     else {
       stroke(0);  
       if(i) {
-        stroke(0,0,180);  
+        stroke(0,0,180);
+        if(dm) {
+          stroke(0,0,240);    
+          fill(0,0,240);    
+        }
+      }
+      else if(dm) {
+        stroke(100);    
+        fill(0);    
       }
     }
     line(x1,y1,x2,y2);
-    fill(100);
     ellipse(x1,y1,s,s);
     ellipse(x2,y2,s,s);
   }
@@ -417,16 +458,114 @@ void ca(int mi) {
     wires.add(new Wire(i*cs*9+cs*5-cs*2.25,height/2-cs*18,width-(i*cs*9+cs*5),cs*5,cs,false,gid));
     gid++;
     
+    wires.add(new Wire(width-(i*cs*9+cs*5),cs*5,width-(i*cs*9+cs*5),cs*3,cs,false,gid));
+    gid++;
+    leds.add(new LED(width-(i*cs*9+cs*5),cs*3,cs*1.5));
+    
     wires.add(new Wire(-(i*cs*2)+cs*mi*2,height/2+cs*8,i*cs*9+cs*5,height/2,cs,false,gid));
     gid++;
     
-    wires.add(new Wire(-(i*cs*2)+cs*mi*2,height/2+height/10,-(i*cs*2)+cs*mi*2,height/2+cs*8,cs,false,gid));
+    wires.add(new Wire(-(i*cs*2)+cs*mi*2,height/2+height/10+cs*8,-(i*cs*2)+cs*mi*2,height/2+cs*8,cs,false,gid));
     gid++;
     
-    wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+cs*8,i*cs*9+cs*5,height/2,cs,false,gid));
+    wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+cs*8,i*cs*9+cs*6.2,height/2,cs,false,gid));
     gid++;
     
-    wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+height/10,width-(i*cs*2)-cs*2,height/2+cs*8,cs,false,gid));
+    wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+height/10+cs*8,width-(i*cs*2)-cs*2,height/2+cs*8,cs,false,gid));
     gid++;
   }  
+}
+
+class LED {
+    float x;
+    float y;
+    float s;
+    boolean on=false;
+    LED(float xx, float yy, float size) {
+      x=xx;
+      y=yy;
+      s=size;
+    }
+    void d() {
+      fill(0);
+      stroke(0);
+      if(dm) {
+        stroke(80);  
+      }
+      strokeWeight(2);
+      if(on) {
+        fill(255,255,0);
+        if(dm) {
+          stroke(150,150,0);    
+          fill(255,255,64);
+        }
+      }
+      ellipse(x,y,s,s);
+      strokeWeight(cs/8);
+    }
+    void u() {
+      boolean ton=false;
+      for(Wire wire : wires) {
+        if(x==wire.x2 && y==wire.y2 && wire.on) {
+          ton=true;  
+        }
+      }
+      on=ton;
+    }
+}
+
+class Switch {
+  float x;
+  float y;
+  float s;
+  boolean on=false;
+  Switch(float xx, float yy, float size) {
+    x=xx;
+    y=yy;
+    s=size;
+  }
+  void d() {
+    fill(100);
+    if(on) {
+      stroke(0,255,0);  
+      if(dm) {
+        fill(0,255,0);  
+      }
+    }
+    else {
+      stroke(0);  
+      if(dm) {
+        stroke(100);    
+        fill(0);    
+      }
+    }
+    rect(x-s/2,y-s/2,s,s);
+  }
+}
+
+class tb {
+  float x;
+  float y;
+  float s;
+  int n;
+  int sel=0;
+  tb(float xx, float yy, float ss, int size) {
+    x=xx;
+    y=yy;
+    s=ss;
+    n=size;
+  }
+  void d() {
+    for(int i=0; i<n; i++) {
+      stroke(0);
+      if(dm) {
+        stroke(150);  
+      }
+      if(sel==i) {
+        stroke(0,200,0);    
+      }
+      noFill();
+      rect(x,y+i*(s+cs/8-0.5),s,s);
+    }
+  }
 }
