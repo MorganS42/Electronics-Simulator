@@ -25,13 +25,14 @@ boolean dm=true; //dark mode
 int gid=0;
 
 void setup() {
-  size(2400,1600);
+  //size(2400,1600);
+  fullScreen();
   //frameRate(10);
   strokeWeight(cs/8);  
   
   int mi = 8; //max i
   
-  tools = new tb(50,height/2-200,50,4);
+  tools = new tb(50,height/2-200,50,8);
   //ca(mi);
 }
 
@@ -69,132 +70,6 @@ void draw() {
         } 
       }
     }
-    
-    
-    if(key=='z') {
-      if(!press) {
-        press=true;
-        
-        float xx=mouseX;
-        float yy=mouseY;
-        
-        for(Wire wire : wires) {
-          if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
-            xx=wire.x1;
-            yy=wire.y1;
-          }
-          if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
-            xx=wire.x2;
-            yy=wire.y2;
-          }
-        }
-        
-        and(xx,yy);
-      }
-    }
-    
-    
-    if(key=='x') {
-      if(!press) {
-        press=true;
-        
-        float xx=mouseX;
-        float yy=mouseY;
-        
-        for(Wire wire : wires) {
-          if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
-            xx=wire.x1;
-            yy=wire.y1;
-          }
-          if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
-            xx=wire.x2;
-            yy=wire.y2;
-          }
-        }
-        
-        xor(xx,yy);
-      }
-    }
-    
-    
-    if(key=='c') {
-      if(!press) {
-        press=true;
-        
-        float xx=mouseX;
-        float yy=mouseY;
-        
-        for(Wire wire : wires) {
-          if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
-            xx=wire.x1;
-            yy=wire.y1;
-          }
-          if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
-            xx=wire.x2;
-            yy=wire.y2;
-          }
-        }
-        
-        fa(xx,yy); 
-      }
-    }
-    
-    if(key=='v') {
-      if(!press) {
-        press=true;
-        
-        float xx=mouseX;
-        float yy=mouseY;
-        
-        for(Wire wire : wires) {
-          if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
-            xx=wire.x1;
-            yy=wire.y1;
-          }
-          if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
-            xx=wire.x2;
-            yy=wire.y2;
-          }
-        }
-        
-        wires.add(new Wire(xx,yy,xx,yy-cs*4.5,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*1.2,yy,xx+cs*1.2,yy-cs*4.5,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx,yy-cs*4.5,xx+cs*4,yy-cs*4.5,cs,true,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*1.2,yy-cs*4.5,xx+cs*5.2,yy-cs*4.5,cs,false,gid));
-        gid++;
-        
-        xor(xx,yy-cs*4.5);
-        and(xx+cs*4,yy-cs*4.5);
-        
-        wires.add(new Wire(xx,yy-cs*12,xx+cs*4,yy-cs*12,cs,true,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*1.2,yy-cs*12,xx+cs*5.2,yy-cs*12,cs,false,gid));
-        gid++;
-        
-        xor(xx,yy-cs*12);
-        and(xx+cs*4,yy-cs*12);
-                
-        wires.add(new Wire(xx-cs*2.25,yy-cs*10.5,xx,yy-cs*12,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx-cs*4.25,yy-cs*10.5,xx+cs*1.2,yy-cs*12,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*7,yy-cs*9,xx+cs*8,yy-cs*13,cs,false,gid));
-        gid++;
-        
-        wires.add(new Wire(xx+cs*7,yy-cs*16.5,xx+cs*8,yy-cs*13,cs,false,gid));
-        gid++;
-        
-      }
-    }
   }
   else {
     press=false;  
@@ -205,62 +80,103 @@ void draw() {
     line(tx,ty,mouseX,mouseY);  
   }
   if(mousePressed) {
-    if(!click) {
-      click=true;
-      if(mouseButton==LEFT) {
-        if(first) {
-          first=false;
-          tx=mouseX;
-          ty=mouseY;
-          for(Wire wire : wires) {
-            if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
-              tx=wire.x1;
-              ty=wire.y1;
-            }
-            else if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
-              tx=wire.x2;
-              ty=wire.y2;  
-            }
-          }
-          if(key=='l') {
-            leds.add(new LED(tx,ty,cs*1.5));
-          }
-        }
-        else {
-          txx=mouseX;
-          tyy=mouseY;
+    if(mouseX<tools.x+tools.s && mouseX>tools.x && mouseY<tools.y+(tools.s+cs/8)*tools.n && mouseY>tools.y) {
+      tools.sel=round((mouseY-tools.y-tools.s/2)/(tools.s+cs/8));  
+    }
+    else {
+      if(!click) {
+        click=true;
+        dl=true;
+        if(mouseButton==LEFT) {
+          if(first) {
+            first=false;
+            
+            float xx=mouseX;
+            float yy=mouseY;
+            
             for(Wire wire : wires) {
               if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
-                txx=wire.x1;
-                tyy=wire.y1;
+                xx=wire.x1;
+                yy=wire.y1;
               }
-              else if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
-                txx=wire.x2;
-                tyy=wire.y2;  
+              if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
+                xx=wire.x2;
+                yy=wire.y2;
               }
             }
-          if(dl) {
-            if(key=='i') {
-              wires.add(new Wire(tx,ty,txx,tyy,cs,true,gid));
-              gid++;
+            
+            if(tools.sel==4) { 
+              and(xx,yy);  
+              first=true;
+              dl=false;
+            }
+            else if(tools.sel==5) {
+              xor(xx,yy);
+              first=true;
+              dl=false;
+            }
+            else if(tools.sel==6) {
+              fa(xx,yy);
+              first=true;
+              dl=false;
+            }
+            else if(tools.sel==7) {
+              fs(xx,yy);
+              first=true;
+              dl=false;
             }
             else {
-              wires.add(new Wire(tx,ty,txx,tyy,cs,false,gid));
-              gid++;
-            }
-            if(key=='l') {
-              //leds.add(new LED(tx,ty,cs*1.5));
-              leds.add(new LED(txx,tyy,cs*1.5));
+              tx=mouseX;
+              ty=mouseY;
+              for(Wire wire : wires) {
+                if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
+                  tx=wire.x1;
+                  ty=wire.y1;
+                }
+                else if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
+                  tx=wire.x2;
+                  ty=wire.y2;  
+                }
+              }
+              if(tools.sel==2) {
+                leds.add(new LED(tx,ty,cs*1.5));
+              }
             }
           }
-          tx=txx;
-          ty=tyy;
+          else {
+            txx=mouseX;
+            tyy=mouseY;
+              for(Wire wire : wires) {
+                if(pow(mouseX-wire.x1,2)+pow(mouseY-wire.y1,2)<pow(wire.s,2)) {
+                  txx=wire.x1;
+                  tyy=wire.y1;
+                }
+                else if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
+                  txx=wire.x2;
+                  tyy=wire.y2;  
+                }
+              }
+            if(dl) {
+              if(tools.sel==1) {
+                wires.add(new Wire(tx,ty,txx,tyy,cs,true,gid));
+                gid++;
+              }
+              else {
+                wires.add(new Wire(tx,ty,txx,tyy,cs,false,gid));
+                gid++;
+              }
+              if(tools.sel==2) {
+                leds.add(new LED(txx,tyy,cs*1.5));
+              }
+            }
+            tx=txx;
+            ty=tyy;
+          }          
         }
-        dl=true;
-      }
-      else if(mouseButton==RIGHT) {
-        first=true;
-        dl=false;
+        else if(mouseButton==RIGHT) {
+          first=true;
+          dl=false;
+        }
       }
     }
   }
@@ -564,8 +480,86 @@ class tb {
       if(sel==i) {
         stroke(0,200,0);    
       }
+      if(dm) {
+        fill(255);  
+      }
+      else {
+        fill(0);  
+      }
+      switch(i) {
+        case 0:
+          textSize(s/1.2);
+          text("W",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 1:
+          textSize(s/1.2);
+          text("I",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 2:
+          textSize(s/1.2);
+          text("L",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 3:
+          textSize(s/1.2);
+          text("S",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 4:
+          textSize(s/1.2);
+          text("A",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 5:
+          textSize(s/1.2);
+          text("X",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 6:
+          textSize(s/1.6);
+          text("FA",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 7:
+          textSize(s/1.6);
+          text("FS",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+      }
       noFill();
       rect(x,y+i*(s+cs/8-0.5),s,s);
     }
   }
+}
+
+void fs(float xx, float yy) {
+  wires.add(new Wire(xx,yy,xx,yy-cs*4.5,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*1.2,yy,xx+cs*1.2,yy-cs*4.5,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx,yy-cs*4.5,xx+cs*4,yy-cs*4.5,cs,true,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*1.2,yy-cs*4.5,xx+cs*5.2,yy-cs*4.5,cs,false,gid));
+  gid++;
+  
+  xor(xx,yy-cs*4.5);
+  and(xx+cs*4,yy-cs*4.5);
+  
+  wires.add(new Wire(xx,yy-cs*12,xx+cs*4,yy-cs*12,cs,true,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*1.2,yy-cs*12,xx+cs*5.2,yy-cs*12,cs,false,gid));
+  gid++;
+  
+  xor(xx,yy-cs*12);
+  and(xx+cs*4,yy-cs*12);
+          
+  wires.add(new Wire(xx-cs*2.25,yy-cs*10.5,xx,yy-cs*12,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx-cs*4.25,yy-cs*10.5,xx+cs*1.2,yy-cs*12,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*7,yy-cs*9,xx+cs*8,yy-cs*13,cs,false,gid));
+  gid++;
+  
+  wires.add(new Wire(xx+cs*7,yy-cs*16.5,xx+cs*8,yy-cs*13,cs,false,gid));
+  gid++;  
 }
