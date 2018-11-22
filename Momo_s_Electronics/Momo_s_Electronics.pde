@@ -8,7 +8,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=30;
+float cs=25;
 
 float tx;
 float ty;
@@ -32,8 +32,10 @@ void setup() {
   
   int mi = 8; //max i
   
-  tools = new tb(100,height/2-400,100,8);
-  ca(mi,200,0);
+  float bs=50; //box size
+  
+  tools = new tb(bs,height/2-bs*5,bs,10);
+  //ca(mi,100,100);
 }
 
 void draw() {  
@@ -49,12 +51,24 @@ void draw() {
     wire.u();
   }
   
+  for(Switch swt : swts) {
+    swt.d();
+  }
+  
   for(LED led : leds) {
     led.d();
     led.u();
   }
   
   tools.d();
+  
+  if(tools.sel==9) {
+    wires.clear();
+    swts.clear();
+    leds.clear();
+    tools.sel=0;
+  }
+  
   
   if(keyPressed) {
     if(key==' ') {
@@ -67,7 +81,13 @@ void draw() {
           if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
             wire.on=!wire.on;
           }
-        } 
+        }
+        
+        for(Switch swt : swts) {
+          if(mouseX>swt.x-swt.s/2 && mouseX<swt.x+swt.s/2 && mouseY>swt.y-swt.s/2 && mouseY<swt.y+swt.s/2) {
+            swt.on=!swt.on;
+          }
+        }
       }
     }
   }
@@ -105,8 +125,20 @@ void draw() {
               }
             }
             
+            for(Switch swt : swts) {
+              if(mouseX>swt.x-swt.s/2 && mouseX<swt.x+swt.s/2 && mouseY>swt.y-swt.s/2 && mouseY<swt.y+swt.s/2) {
+                xx=swt.x;
+                yy=swt.y;
+              }
+            }
+            
             if(tools.sel==4) { 
               and(xx,yy);  
+              first=true;
+              dl=false;
+            }
+            else if(tools.sel==3) {
+              swts.add(new Switch(xx,yy,cs*2));
               first=true;
               dl=false;
             }
@@ -125,6 +157,26 @@ void draw() {
               first=true;
               dl=false;
             }
+            else if(tools.sel==8) {
+              
+              for(int i=0; i<wires.size(); i++) {
+                if(pow(mouseX-wires.get(i).x1,2)+pow(mouseY-wires.get(i).y1,2)<pow(wires.get(i).s,2)) {
+                  wires.remove(i);
+                }
+                else if(pow(mouseX-wires.get(i).x2,2)+pow(mouseY-wires.get(i).y2,2)<pow(wires.get(i).s,2)) {
+                  wires.remove(i);
+                }
+              }
+              
+              for(int i=0; i<swts.size(); i++) {
+                if(mouseX>swts.get(i).x-swts.get(i).s/2 && mouseX<swts.get(i).x+swts.get(i).s/2 && mouseY>swts.get(i).y-swts.get(i).s/2 && mouseY<swts.get(i).y+swts.get(i).s/2) {
+                  swts.remove(i);
+                }
+              }
+              
+              first=true;
+              dl=false;
+            }
             else {
               tx=mouseX;
               ty=mouseY;
@@ -136,6 +188,12 @@ void draw() {
                 else if(pow(mouseX-wire.x2,2)+pow(mouseY-wire.y2,2)<pow(wire.s,2)) {
                   tx=wire.x2;
                   ty=wire.y2;  
+                }
+              }
+              for(Switch swt : swts) {
+                if(mouseX>swt.x-swt.s/2 && mouseX<swt.x+swt.s/2 && mouseY>swt.y-swt.s/2 && mouseY<swt.y+swt.s/2) {
+                  tx=swt.x;
+                  ty=swt.y;
                 }
               }
               if(tools.sel==2) {
@@ -245,16 +303,15 @@ class Wire {
       ton = true;
       for(Wire wire : wires) {
         if(!(id==wire.id)) {  
-          if(x1==wire.x1 && y1==wire.y1) {
-            if(wire.on==true) {
-              //ton=false;  
-            }
+          if(x1==wire.x2 && y1==wire.y2 && wire.on) {
+            ton=false;  
           }
-          if(x1==wire.x2 && y1==wire.y2) {
-            if(wire.on==true) {
-              ton=false;  
-            }
-          }
+        }
+      }
+      
+      for(Switch swt : swts) {
+        if(x1>swt.x-swt.s/2 && x1<swt.x+swt.s/2 && y1>swt.y-swt.s/2 && y1<swt.y+swt.s/2 && swt.on) {
+          ton=false;
         }
       }
     }
@@ -263,12 +320,15 @@ class Wire {
       ton=false;
       for(Wire wire : wires) {
         if(!(id==wire.id)) {
-          if(x1==wire.x1 && y1==wire.y1 && wire.on) {
-            //ton=wire.on; 
-          }
           if(x1==wire.x2 && y1==wire.y2 && wire.on) {
-            ton=wire.on;  
+            ton=true;  
           }
+        }
+      }
+      
+      for(Switch swt : swts) {
+        if(x1>swt.x-swt.s/2 && x1<swt.x+swt.s/2 && y1>swt.y-swt.s/2 && y1<swt.y+swt.s/2 && swt.on) {
+          ton=true;
         }
       }
     }
@@ -374,9 +434,9 @@ void ca(int mi, float tx, float ty) {
     wires.add(new Wire(i*cs*9+cs*5-cs*2.25 +tx,height/2-cs*18 +ty,width-(i*cs*9+cs*5),cs*5 +ty,cs,false,gid));
     gid++;
     
-    wires.add(new Wire(width-(i*cs*9+cs*5),cs*5 +ty,width-(i*cs*9+cs*5),cs*3 +ty,cs,false,gid));
+    wires.add(new Wire(width-(i*cs*9+cs*5),cs*5 +ty,width-(i*cs*9+cs*5),cs*3,cs,false,gid));
     gid++;
-    leds.add(new LED(width-(i*cs*9+cs*5),cs*3 +ty,cs*1.5));
+    leds.add(new LED(width-(i*cs*9+cs*5),cs*3,cs*1.5));
     
     wires.add(new Wire(-(i*cs*2)+cs*mi*2 +tx,height/2+cs*8 +ty,i*cs*9+cs*5 +tx,height/2 +ty,cs,false,gid));
     gid++;
@@ -384,11 +444,15 @@ void ca(int mi, float tx, float ty) {
     wires.add(new Wire(-(i*cs*2)+cs*mi*2 +tx,height/2+height/10+cs*8 +ty,-(i*cs*2)+cs*mi*2 +tx,height/2+cs*8 +ty,cs,false,gid));
     gid++;
     
+    swts.add(new Switch(-(i*cs*2)+cs*mi*2 +tx,height/2+height/10+cs*8 +ty,cs*2));
+    
     wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+cs*8 +ty,i*cs*9+cs*6.2 +tx,height/2 +ty,cs,false,gid));
     gid++;
     
     wires.add(new Wire(width-(i*cs*2)-cs*2,height/2+height/10+cs*8 +ty,width-(i*cs*2)-cs*2,height/2+cs*8 +ty,cs,false,gid));
     gid++;
+    
+    swts.add(new Switch(width-(i*cs*2)-cs*2,height/2+height/10+cs*8 +ty,cs*2));
   }  
 }
 
@@ -518,6 +582,32 @@ class tb {
         case 7:
           textSize(s/1.6);
           text("FS",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 8:
+          stroke(255,0,0);
+          strokeWeight(10);
+          line(x+10,y+i*(s+cs/8-0.5)+10,x+s-10,y+i*(s+cs/8-0.5)+s-10);
+          line(x+s-10,y+i*(s+cs/8-0.5)+10,x+10,y+i*(s+cs/8-0.5)+s-10);
+          
+          stroke(0);
+          if(dm) {
+            stroke(150);  
+          }
+          if(sel==i) {
+            stroke(0,200,0);    
+          }
+          if(dm) {
+            fill(255);  
+          }
+          else {
+            fill(0);  
+          }
+          strokeWeight(5);
+          
+        break;
+        case 9:
+          textSize(s/1.2);
+          text("C",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
         break;
       }
       noFill();
