@@ -8,7 +8,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=25;
+float cs=32;
 
 float tx;
 float ty;
@@ -30,12 +30,12 @@ void setup() {
   //frameRate(10);
   strokeWeight(cs/8);  
   
-  int mi = 8; //max i
+  int mi = 4; //max i
   
-  float bs=50; //box size
+  float bs=100; //box size
   
-  tools = new tb(bs,height/2-bs*5,bs,10);
-  //ca(mi,100,100);
+  tools = new tb(bs,height/2-bs*5,bs,11);
+  ca(mi,200,400);
 }
 
 void draw() {  
@@ -62,7 +62,7 @@ void draw() {
   
   tools.d();
   
-  if(tools.sel==9) {
+  if(tools.sel==10) {
     wires.clear();
     swts.clear();
     leds.clear();
@@ -158,6 +158,11 @@ void draw() {
               dl=false;
             }
             else if(tools.sel==8) {
+              sd(xx,yy,3);
+              first=true;
+              dl=false;
+            }
+            else if(tools.sel==9) {
               
               for(int i=0; i<wires.size(); i++) {
                 if(pow(mouseX-wires.get(i).x1,2)+pow(mouseY-wires.get(i).y1,2)<pow(wires.get(i).s,2)) {
@@ -171,6 +176,12 @@ void draw() {
               for(int i=0; i<swts.size(); i++) {
                 if(mouseX>swts.get(i).x-swts.get(i).s/2 && mouseX<swts.get(i).x+swts.get(i).s/2 && mouseY>swts.get(i).y-swts.get(i).s/2 && mouseY<swts.get(i).y+swts.get(i).s/2) {
                   swts.remove(i);
+                }
+              }
+              
+              for(int i=0; i<leds.size(); i++) {
+                if(pow(mouseX-leds.get(i).x,2)+pow(mouseY-leds.get(i).y,2)<pow(leds.get(i).s,2)) {
+                  leds.remove(i);
                 }
               }
               
@@ -584,6 +595,10 @@ class tb {
           text("FS",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
         break;
         case 8:
+          textSize(s/2);
+          text("7SD",x,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 9:
           stroke(255,0,0);
           strokeWeight(10);
           line(x+10,y+i*(s+cs/8-0.5)+10,x+s-10,y+i*(s+cs/8-0.5)+s-10);
@@ -605,7 +620,7 @@ class tb {
           strokeWeight(5);
           
         break;
-        case 9:
+        case 10:
           textSize(s/1.2);
           text("C",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
         break;
@@ -652,4 +667,45 @@ void fs(float xx, float yy) {
   
   wires.add(new Wire(xx+cs*7,yy-cs*16.5,xx+cs*8,yy-cs*13,cs,false,gid));
   gid++;  
+}
+
+void sd(float xx, float yy, int d) {
+  for(int i=1; i<d; i++) {
+    wires.add(new Wire(xx+i*cs*1.5,yy,xx+cs*1.5+i*cs*1.5,yy,cs,false,gid));
+    gid++;        
+    leds.add(new LED(xx+i*cs*1.5,yy,cs*1.5)); 
+    
+    wires.add(new Wire(xx,yy-i*cs*1.5,xx,yy-cs*1.5-i*cs*1.5,cs,false,gid));
+    gid++;        
+    leds.add(new LED(xx,yy-i*cs*1.5,cs*1.5)); 
+    
+    wires.add(new Wire(xx+cs*(d+1)*1.5,yy-i*cs*1.5,xx+cs*(d+1)*1.5,yy-cs*1.5-i*cs*1.5,cs,false,gid));
+    gid++;        
+    leds.add(new LED(xx+cs*(d+1)*1.5,yy-i*cs*1.5,cs*1.5)); 
+    
+    wires.add(new Wire(xx+cs*(d+1)*1.5,yy-i*cs*1.5-cs*(d+1)*1.5,xx+cs*(d+1)*1.5,yy-cs*1.5-i*cs*1.5-cs*(d+1)*1.5,cs,false,gid));
+    gid++;        
+    leds.add(new LED(xx+cs*(d+1)*1.5,yy-i*cs*1.5-cs*(d+1)*1.5,cs*1.5)); 
+    
+    wires.add(new Wire(xx,yy-i*cs*1.5-cs*(d+1)*1.5,xx,yy-cs*1.5-i*cs*1.5-cs*(d+1)*1.5,cs,false,gid));
+    gid++;        
+    leds.add(new LED(xx,yy-i*cs*1.5-cs*(d+1)*1.5,cs*1.5)); 
+    
+    wires.add(new Wire(xx+i*cs*1.5,yy-cs*(d+1)*1.5,xx+cs*1.5+i*cs*1.5,yy-cs*(d+1)*1.5,cs,false,gid));
+    gid++;        
+    leds.add(new LED(xx+i*cs*1.5,yy-cs*(d+1)*1.5,cs*1.5)); 
+    
+    wires.add(new Wire(xx+i*cs*1.5,yy-cs*(d+d+2)*1.5,xx+cs*1.5+i*cs*1.5,yy-cs*(d+d+2)*1.5,cs,false,gid));
+    gid++;        
+    leds.add(new LED(xx+i*cs*1.5,yy-cs*(d+d+2)*1.5,cs*1.5)); 
+  }
+  leds.add(new LED(xx+cs*d*1.5,yy,cs*1.5));
+  leds.add(new LED(xx+cs*d*1.5,yy-cs*(d+d-2)*1.5,cs*1.5));
+  leds.add(new LED(xx+cs*d*1.5,yy-cs*(d+d+d-1)*1.5,cs*1.5));
+  
+  leds.add(new LED(xx,yy-cs*d*1.5,cs*1.5));
+  leds.add(new LED(xx+cs*(d+1)*1.5,yy-cs*d*1.5,cs*1.5));
+  
+  leds.add(new LED(xx,yy-cs*(d+d+1)*1.5,cs*1.5));
+  leds.add(new LED(xx+cs*(d+1)*1.5,yy-cs*(d+d+1)*1.5,cs*1.5));
 }
