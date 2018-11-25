@@ -8,7 +8,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=32;
+float cs=15;
 
 float tx;
 float ty;
@@ -25,17 +25,23 @@ boolean dm=true; //dark mode
 int gid=0;
 
 void setup() {
-  //size(2400,1600);
+  //size(1800,1000);
   fullScreen();
   //frameRate(10);
   strokeWeight(cs/8);  
   
   int mi = 4; //max i
   
-  float bs=100; //box size
+  float bs=50; //box size
   
-  tools = new tb(bs,height/2-bs*5,bs,11);
-  ca(mi,200,400);
+  tools = new tb(bs,height/2-bs*5.5,bs,12);
+  //ca(mi,800,250);
+  
+  for(int i=0; i<6; i++) {
+    //sd(120+i*cs*9,300,3);
+  }
+  
+  //btd(300,height-100);
 }
 
 void draw() {  
@@ -62,7 +68,7 @@ void draw() {
   
   tools.d();
   
-  if(tools.sel==10) {
+  if(tools.sel==11) {
     wires.clear();
     swts.clear();
     leds.clear();
@@ -87,6 +93,27 @@ void draw() {
           if(mouseX>swt.x-swt.s/2 && mouseX<swt.x+swt.s/2 && mouseY>swt.y-swt.s/2 && mouseY<swt.y+swt.s/2) {
             swt.on=!swt.on;
           }
+        }
+      }
+    }
+    
+    if(key=='q') {
+      for(Wire wire : wires) {
+        if(wire.x1<wire.x2) {
+          wire.x1++;
+          wire.x2--;
+        }
+        else {
+          wire.x1--;
+          wire.x2++;
+        }
+        if(wire.y1<wire.y2) {
+          wire.y2--;
+          wire.y1++;
+        }
+        else {
+          wire.y1--;
+          wire.y2++;
         }
       }
     }
@@ -133,7 +160,7 @@ void draw() {
             }
             
             if(tools.sel==4) { 
-              and(xx,yy);  
+              and(xx,yy,2);  
               first=true;
               dl=false;
             }
@@ -163,6 +190,11 @@ void draw() {
               dl=false;
             }
             else if(tools.sel==9) {
+              btd(xx,yy);
+              first=true;
+              dl=false;
+            }
+            else if(tools.sel==10) {
               
               for(int i=0; i<wires.size(); i++) {
                 if(pow(mouseX-wires.get(i).x1,2)+pow(mouseY-wires.get(i).y1,2)<pow(wires.get(i).s,2)) {
@@ -391,21 +423,17 @@ void xor(float xx, float yy) {
   gid++;  
 }
 
-void and(float xx, float yy) {
-  wires.add(new Wire(xx,yy,xx,yy-cs*1.5,cs,false,gid));
-  gid++;
-  wires.add(new Wire(xx+cs*1.2,yy,xx+cs*1.2,yy-cs*1.5,cs,false,gid));
-  gid++;  
-  
-  wires.add(new Wire(xx,yy-cs*1.5,xx,yy-cs*3,cs,true,gid));
-  gid++;
-  wires.add(new Wire(xx+cs*1.2,yy-cs*1.5,xx+cs*1.2,yy-cs*3,cs,true,gid));
-  gid++;
-  
-  wires.add(new Wire(xx,yy-cs*3,xx+cs*0.6,yy-cs*4.5,cs,false,gid));
-  gid++;
-  wires.add(new Wire(xx+cs*1.2,yy-cs*3,xx+cs*0.6,yy-cs*4.5,cs,false,gid));
-  gid++;
+void and(float xx, float yy, int n) {
+  for(int i=0; i<n; i++) {
+    wires.add(new Wire(xx+cs*1.2*i,yy,xx+cs*1.2*i,yy-cs*1.5,cs,false,gid));
+    gid++;
+    
+    wires.add(new Wire(xx+cs*1.2*i,yy-cs*1.5,xx+cs*1.2*i,yy-cs*3,cs,true,gid));
+    gid++;
+    
+    wires.add(new Wire(xx+cs*1.2*i,yy-cs*3,xx+cs*0.6,yy-cs*4.5,cs,false,gid));
+    gid++;
+  }
   
   wires.add(new Wire(xx+cs*0.6,yy-cs*4.5,xx+cs*1.8,yy-cs*4.5,cs,true,gid));
   gid++;
@@ -599,6 +627,10 @@ class tb {
           text("7SD",x,y+i*(s+cs/8-0.5)+s/1.2);
         break;
         case 9:
+          textSize(s/2);
+          text("BtD",x+s/12,y+i*(s+cs/8-0.5)+s/1.2);
+        break;
+        case 10:
           stroke(255,0,0);
           strokeWeight(10);
           line(x+10,y+i*(s+cs/8-0.5)+10,x+s-10,y+i*(s+cs/8-0.5)+s-10);
@@ -617,10 +649,10 @@ class tb {
           else {
             fill(0);  
           }
-          strokeWeight(5);
+          strokeWeight(cs/8);
           
         break;
-        case 10:
+        case 11:
           textSize(s/1.2);
           text("C",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
         break;
@@ -645,7 +677,7 @@ void fs(float xx, float yy) {
   gid++;
   
   xor(xx,yy-cs*4.5);
-  and(xx+cs*4,yy-cs*4.5);
+  and(xx+cs*4,yy-cs*4.5,2);
   
   wires.add(new Wire(xx,yy-cs*12,xx+cs*4,yy-cs*12,cs,true,gid));
   gid++;
@@ -654,7 +686,7 @@ void fs(float xx, float yy) {
   gid++;
   
   xor(xx,yy-cs*12);
-  and(xx+cs*4,yy-cs*12);
+  and(xx+cs*4,yy-cs*12,2);
           
   wires.add(new Wire(xx-cs*2.25,yy-cs*10.5,xx,yy-cs*12,cs,false,gid));
   gid++;
@@ -700,12 +732,169 @@ void sd(float xx, float yy, int d) {
     leds.add(new LED(xx+i*cs*1.5,yy-cs*(d+d+2)*1.5,cs*1.5)); 
   }
   leds.add(new LED(xx+cs*d*1.5,yy,cs*1.5));
-  leds.add(new LED(xx+cs*d*1.5,yy-cs*(d+d-2)*1.5,cs*1.5));
-  leds.add(new LED(xx+cs*d*1.5,yy-cs*(d+d+d-1)*1.5,cs*1.5));
+  leds.add(new LED(xx+cs*d*1.5,yy-cs*(d+1)*1.5,cs*1.5));
+  leds.add(new LED(xx+cs*d*1.5,yy-cs*(d+d+2)*1.5,cs*1.5));
   
   leds.add(new LED(xx,yy-cs*d*1.5,cs*1.5));
   leds.add(new LED(xx+cs*(d+1)*1.5,yy-cs*d*1.5,cs*1.5));
   
   leds.add(new LED(xx,yy-cs*(d+d+1)*1.5,cs*1.5));
   leds.add(new LED(xx+cs*(d+1)*1.5,yy-cs*(d+d+1)*1.5,cs*1.5));
+}
+
+void btd(float xx, float yy) {
+  //cs=cs/2;
+  
+  float a1=xx;
+  float b1=xx+cs*2;
+  float b2=xx+cs*3;
+  float c1=xx+cs*4;
+  float c2=xx+cs*5;
+  float d1=xx+cs*6;
+  float d2=xx+cs*7;
+  
+  float yyy=yy-cs*5;
+  
+  wires.add(new Wire(xx,yy,xx,yy-cs*3,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*2,yy,xx+cs*2,yy-cs*3,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*4,yy,xx+cs*4,yy-cs*3,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*6,yy,xx+cs*6,yy-cs*3,cs,false,gid));  
+  gid++;
+ 
+  //wires.add(new Wire(xx,yy-cs*3,xx+cs*1,yy-cs*5,cs,true,gid));  
+  //gid++;
+  wires.add(new Wire(xx+cs*2,yy-cs*3,b2,yyy,cs,true,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*4,yy-cs*3,c2,yyy,cs,true,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*6,yy-cs*3,d2,yyy,cs,true,gid));  
+  gid++;
+  
+  wires.add(new Wire(xx,yy-cs*3,a1,yyy,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*2,yy-cs*3,b1,yyy,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*4,yy-cs*3,c1,yyy,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*6,yy-cs*3,d1,yyy,cs,false,gid));  
+  gid++;
+  
+  
+  and(xx,yy-cs*7,2);
+  and(xx+cs*4,yy-cs*7,2);
+  and(xx+cs*8,yy-cs*7,2);
+  and(xx+cs*12,yy-cs*7,2);
+  and(xx+cs*16,yy-cs*7,2);
+  and(xx+cs*20,yy-cs*7,2);
+  and(xx+cs*24,yy-cs*7,2);
+  and(xx+cs*28,yy-cs*7,2);
+  and(xx+cs*32,yy-cs*7,2);
+  
+  wires.add(new Wire(b1,yyy,xx,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(d1,yyy,xx+cs*1.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(b2,yyy,xx+cs*4,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(d2,yyy,xx+cs*5.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(c1,yyy,xx+cs*8,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(d1,yyy,xx+cs*9.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(c2,yyy,xx+cs*12,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(d2,yyy,xx+cs*13.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(c1,yyy,xx+cs*16,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(d2,yyy,xx+cs*17.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(b2,yyy,xx+cs*20,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(c1,yyy,xx+cs*21.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(d1,yyy,xx+cs*24,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*31,yy-cs*11.5,xx+cs*25.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(b1,yyy,xx+cs*28,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(c2,yyy,xx+cs*29.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(b1,yyy,xx+cs*32,yy-cs*7,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(d2,yyy,xx+cs*33.2,yy-cs*7,cs,false,gid));  
+  gid++;
+  
+  
+  wires.add(new Wire(xx+cs*3,yy-cs*11.5,xx,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*7,yy-cs*11.5,xx,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(a1,yyy,xx,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(c1,yyy,xx,yy-cs*15,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(xx+cs*11,yy-cs*11.5,xx+cs*2,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*15,yy-cs*11.5,xx+cs*2,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(b2,yyy,xx+cs*2,yy-cs*15,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(b1,yyy,xx+cs*4,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(c2,yyy,xx+cs*4,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(d1,yyy,xx+cs*4,yy-cs*15,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(a1,yyy,xx+cs*6,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*7,yy-cs*11.5,xx+cs*6,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*19,yy-cs*11.5,xx+cs*6,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*23,yy-cs*11.5,xx+cs*6,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*27,yy-cs*11.5,xx+cs*6,yy-cs*15,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(xx+cs*19,yy-cs*11.5,xx+cs*8,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*7,yy-cs*11.5,xx+cs*8,yy-cs*15,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(xx+cs*15,yy-cs*11.5,xx+cs*10,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*35,yy-cs*11.5,xx+cs*10,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*31,yy-cs*11.5,xx+cs*10,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(a1,yyy,xx+cs*10,yy-cs*15,cs,false,gid));  
+  gid++;
+  
+  wires.add(new Wire(xx+cs*19,yy-cs*11.5,xx+cs*12,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*31,yy-cs*11.5,xx+cs*12,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(a1,yyy,xx+cs*12,yy-cs*15,cs,false,gid));  
+  gid++;
+  wires.add(new Wire(xx+cs*23,yy-cs*11.5,xx+cs*12,yy-cs*15,cs,false,gid));  
+  gid++;
+  
+  //cs=cs*2;
 }
