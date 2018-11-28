@@ -8,7 +8,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=15;
+float cs=8;
 
 float tx;
 float ty;
@@ -24,18 +24,35 @@ boolean dm=true; //dark mode
 
 int gid=0;
 
+int load=0;
+
+int save=5;
+
+float wds=60;
+
+boolean sdd=false;
+boolean ldd=false;
+
+ArrayList<PrintWriter> saves = new ArrayList<PrintWriter>();
+
 void setup() {
   //size(1800,1000);
   fullScreen();
   //frameRate(10);
   strokeWeight(cs/8);  
   
-  int mi = 4; //max i
+  /*for(int i=0; i<3; i++) {
+    if(i!=load) {
+      saves.add(createWriter(i+".txt"));
+    }
+  }*/
   
-  float bs=50; //box size
+  int mi = 14; //max i
+  
+  float bs=wds; //box size
   
   tools = new tb(bs,height/2-bs*5.5,bs,12);
-  //ca(mi,800,250);
+  //ca(mi,900,350);
   
   for(int i=0; i<6; i++) {
     //sd(120+i*cs*9,300,3);
@@ -97,6 +114,28 @@ void draw() {
       }
     }
     
+    if(key=='l') {
+      BufferedReader reader = createReader(load+".txt");
+      String line = null;
+      try {
+        while ((line = reader.readLine()) != null) {
+          String[] pieces = split(line, ' ');
+          //println(float(pieces[0])+" "+float(pieces[1])+" "+float(pieces[2])+" "+float(pieces[3])+" "+float(pieces[4])+" "+boolean(pieces[5])+" "+int(pieces[6]));
+          wires.add(new Wire(float(pieces[0]),float(pieces[1]),float(pieces[2]),float(pieces[3]),float(pieces[4]),boolean(pieces[5]),int(pieces[6])));
+        }
+        reader.close();
+      } 
+      catch (IOException e) {
+        e.printStackTrace();
+      }  
+    }
+    
+    if(key=='s') {
+      saves.get(0).flush();
+      saves.get(0).close();
+      exit();
+    }
+    
     if(key=='q') {
       for(Wire wire : wires) {
         if(wire.x1<wire.x2) {
@@ -130,7 +169,7 @@ void draw() {
     if(mouseX<tools.x+tools.s && mouseX>tools.x && mouseY<tools.y+(tools.s+cs/8)*tools.n && mouseY>tools.y) {
       tools.sel=round((mouseY-tools.y-tools.s/2)/(tools.s+cs/8));  
     }
-    else {
+    else if(!((mouseX>-5 && mouseX<wds*4+5 && mouseY>-5 && mouseY<wds+5) || (sdd && mouseX>0 && mouseX<wds*1.5 && mouseY>0 && mouseY<wds*(save+2)))) {
       if(!click) {
         click=true;
         dl=true;
@@ -284,6 +323,54 @@ void draw() {
   else {
     click=false;  
   }
+  
+  sd();
+}
+
+void sd() {
+  strokeWeight(wds/12);
+  stroke(100);
+  rect(0,0,wds*2,wds);  
+  rect(wds*2,0,wds*2,wds);  
+  textSize(wds/1.3);
+  text("Save",wds/6,wds/1.2);
+  text("Load",wds*2,wds/1.2);
+  
+  if(mouseX>0 && mouseX<wds*2 && mouseY>0 && mouseY<wds) {
+    sdd=true;    
+  }
+  
+  if(sdd==true) {
+    for(int i=0; i<save; i++) {
+      rect(0,wds*(i+1),wds*1.5,wds); 
+      fill(0);
+      strokeWeight(0);
+      rect(3,wds*(i+1)+3,wds*1.5-3,wds-3);
+      fill(100);
+      strokeWeight(wds/12);
+      
+      fill(255);
+      textSize(wds/3);
+      text("Save to",wds/6,wds*(i+1.4));
+      text(i+".txt",wds/6,wds*(i+1.8));
+    }
+    
+    rect(0,wds*(save+1),wds*1.5,wds); 
+    fill(0);
+    strokeWeight(0);
+    rect(3,wds*(save+1)+3,wds*1.5-3,wds-3);
+    fill(100);
+    strokeWeight(wds/12);
+    
+    fill(255);
+    textSize(wds/3);
+    text("Save to",wds/6,wds*(save+1.4));
+    text("New File",wds/6,wds*(save+1.8));
+    
+    if(!(mouseX>0 && mouseX<wds*1.5 && mouseY>0 && mouseY<wds*(save+2))) {
+      sdd=false;  
+    }
+  }
 }
 
 class Wire {
@@ -303,6 +390,8 @@ class Wire {
     s=size;
     i=in;
     id=idd;
+    
+    //saves.get(save).println(x1+" "+y1+" "+x2+" "+y2+" "+s+" "+i+" "+id);
   }
   
   void d() {
