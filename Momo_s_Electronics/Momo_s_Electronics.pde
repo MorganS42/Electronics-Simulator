@@ -1,6 +1,19 @@
+import java.io.FilenameFilter;
+
 ArrayList<Wire> wires = new ArrayList<Wire>(); 
 ArrayList<LED> leds = new ArrayList<LED>(); 
 ArrayList<Switch> swts = new ArrayList<Switch>(); 
+
+
+static final FilenameFilter FILTER = new FilenameFilter() {
+  @ Override boolean accept(File path, String name) {
+    name = name.toLowerCase();
+    return name.endsWith(".txt");
+  }
+};
+File f = dataFile("Electronics");
+String[] files = f.list(FILTER);
+
 
 tb tools;
 
@@ -8,7 +21,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=8;
+float cs=32;
 
 float tx;
 float ty;
@@ -26,9 +39,9 @@ int gid=0;
 
 int load=0;
 
-int save=5;
+int save=0;
 
-float wds=60;
+float wds=110;
 
 boolean sdd=false;
 boolean ldd=false;
@@ -47,18 +60,20 @@ void setup() {
     }
   }*/
   
-  int mi = 14; //max i
+  int mi = 8; //max i
   
   float bs=wds; //box size
   
   tools = new tb(bs,height/2-bs*5.5,bs,12);
-  //ca(mi,900,350);
+  ca(mi,700,350);
   
   for(int i=0; i<6; i++) {
     //sd(120+i*cs*9,300,3);
   }
   
   //btd(300,height-100);
+  
+  println(files.length);
 }
 
 void draw() {  
@@ -114,28 +129,6 @@ void draw() {
       }
     }
     
-    if(key=='l') {
-      BufferedReader reader = createReader(load+".txt");
-      String line = null;
-      try {
-        while ((line = reader.readLine()) != null) {
-          String[] pieces = split(line, ' ');
-          //println(float(pieces[0])+" "+float(pieces[1])+" "+float(pieces[2])+" "+float(pieces[3])+" "+float(pieces[4])+" "+boolean(pieces[5])+" "+int(pieces[6]));
-          wires.add(new Wire(float(pieces[0]),float(pieces[1]),float(pieces[2]),float(pieces[3]),float(pieces[4]),boolean(pieces[5]),int(pieces[6])));
-        }
-        reader.close();
-      } 
-      catch (IOException e) {
-        e.printStackTrace();
-      }  
-    }
-    
-    if(key=='s') {
-      saves.get(0).flush();
-      saves.get(0).close();
-      exit();
-    }
-    
     if(key=='q') {
       for(Wire wire : wires) {
         if(wire.x1<wire.x2) {
@@ -169,7 +162,7 @@ void draw() {
     if(mouseX<tools.x+tools.s && mouseX>tools.x && mouseY<tools.y+(tools.s+cs/8)*tools.n && mouseY>tools.y) {
       tools.sel=round((mouseY-tools.y-tools.s/2)/(tools.s+cs/8));  
     }
-    else if(!((mouseX>-5 && mouseX<wds*4+5 && mouseY>-5 && mouseY<wds+5) || (sdd && mouseX>0 && mouseX<wds*1.5 && mouseY>0 && mouseY<wds*(save+2)))) {
+    else if(!((mouseX>-5 && mouseX<wds*4+5 && mouseY>-5 && mouseY<wds+5) || (sdd && mouseX>0 && mouseX<wds*1.5 && mouseY>0 && mouseY<(wds+wds/12)*(save+2)) || (ldd && mouseX>wds*2 && mouseX<wds*3.5 && mouseY>0 && mouseY<(wds+wds/12)*(save+1)))) {
       if(!click) {
         click=true;
         dl=true;
@@ -336,39 +329,136 @@ void sd() {
   text("Save",wds/6,wds/1.2);
   text("Load",wds*2,wds/1.2);
   
-  if(mouseX>0 && mouseX<wds*2 && mouseY>0 && mouseY<wds) {
-    sdd=true;    
+  if(mouseX>wds*2 && mouseX<wds*4 && mouseY>0 && mouseY<wds) {
+    ldd=true;  
   }
   
-  if(sdd==true) {
+  if(ldd) {
     for(int i=0; i<save; i++) {
-      rect(0,wds*(i+1),wds*1.5,wds); 
-      fill(0);
+      if(mouseX>wds*2 && mouseX<wds*3.5 && mouseY>(wds+wds/12)*(i+1) && mouseY<(wds+wds/12)*(i+2)) {
+        stroke(0,255,0);  
+        if(mousePressed) {
+          fill(0,255,0);
+          
+          BufferedReader reader = createReader(i+".txt");
+          String line = null;
+          try {
+            while ((line = reader.readLine()) != null) {
+              String[] pieces = split(line, ' ');
+              switch(pieces[0]) {
+                case "w":
+                  wires.add(new Wire(float(pieces[1]),float(pieces[2]),float(pieces[3]),float(pieces[4]),float(pieces[5]),boolean(pieces[6]),int(pieces[7])));
+                break;
+              }
+            }
+            reader.close();
+          } 
+          catch (IOException e) {
+            e.printStackTrace();
+          }  
+        }
+        else {
+          fill(0);  
+        }
+      }
+      else {
+        stroke(100);  
+        fill(0);
+      }
+
+      rect(wds*2,(wds+wds/12)*(i+1),wds*1.5,wds);   
       strokeWeight(0);
-      rect(3,wds*(i+1)+3,wds*1.5-3,wds-3);
+      rect(wds*2+3,(wds+wds/12)*(i+1)+3,wds*1.5-3,wds-3);
       fill(100);
       strokeWeight(wds/12);
       
       fill(255);
       textSize(wds/3);
-      text("Save to",wds/6,wds*(i+1.4));
-      text(i+".txt",wds/6,wds*(i+1.8));
+      text("Load up",wds*2+wds/6,(wds+wds/12)*(i+1.4));
+      text(i+".txt",wds*2+wds/6,(wds+wds/12)*(i+1.8));
+    }  
+  }
+  
+  if(mouseX>0 && mouseX<wds*2 && mouseY>0 && mouseY<wds) {
+    sdd=true;   
+  }
+  
+  if(sdd) {
+    for(int i=0; i<save; i++) {
+      if(mouseX>0 && mouseX<wds*1.5 && mouseY>(wds+wds/12)*(i+1) && mouseY<(wds+wds/12)*(i+2)) {
+        stroke(0,255,0);  
+        if(mousePressed) {
+          fill(0,255,0);
+          
+          if(!(saves.size()>i)) {
+            saves.add(createWriter(i+".txt"));
+          }
+          for(Wire wire : wires) {
+            saves.get(i).println("w "+wire.x1+" "+wire.y1+" "+wire.x2+" "+wire.y2+" "+wire.s+" "+wire.i+" "+wire.id);  
+          }
+          for(LED led : leds) {
+            saves.get(i).println("l "+led.x+" "+led.y+" "+led.s);  
+          }
+          for(Switch swt : swts) {
+            saves.get(i).println("s "+swt.x+" "+swt.y+" "+swt.s+" "+swt.on);  
+          }
+          
+          saves.get(i).flush();
+          saves.get(i).close();
+        }
+        else {
+          fill(0);  
+        }
+      }
+      else {
+        stroke(100);  
+        fill(0);
+      }
+      
+      rect(0,(wds+wds/12)*(i+1),wds*1.5,wds);   
+      strokeWeight(0);
+      rect(3,(wds+wds/12)*(i+1)+3,wds*1.5-3,wds-3);
+      fill(100);
+      strokeWeight(wds/12);
+      
+      fill(255);
+      textSize(wds/3);
+      text("Save to",wds/6,(wds+wds/12)*(i+1.4));
+      text(i+".txt",wds/6,(wds+wds/12)*(i+1.8));
     }
     
-    rect(0,wds*(save+1),wds*1.5,wds); 
-    fill(0);
+    
+    if(mouseX>0 && mouseX<wds*1.5 && mouseY>(wds+wds/12)*(save+1) && mouseY<(wds+wds/12)*(save+2)) {
+      stroke(0,255,0); 
+      if(mousePressed) {
+        fill(0,255,0); 
+        save++;
+      }
+      else {
+        fill(0);  
+      }
+    }
+    else {
+      stroke(100);  
+      fill(0);
+    }
+    rect(0,(wds+wds/12.2)*(save+1),wds*1.5,wds); 
     strokeWeight(0);
-    rect(3,wds*(save+1)+3,wds*1.5-3,wds-3);
+    rect(3,(wds+wds/12.2)*(save+1)+3,wds*1.5-3,wds-3);
     fill(100);
     strokeWeight(wds/12);
     
     fill(255);
     textSize(wds/3);
-    text("Save to",wds/6,wds*(save+1.4));
-    text("New File",wds/6,wds*(save+1.8));
+    text("Save to",wds/6,(wds+wds/12.2)*(save+1.4));
+    text("New File",wds/6,(wds+wds/12.2)*(save+1.8));
     
-    if(!(mouseX>0 && mouseX<wds*1.5 && mouseY>0 && mouseY<wds*(save+2))) {
+    if(!(mouseX>0 && mouseX<wds*1.5 && mouseY>0 && mouseY<(wds+wds/12)*(save+2))) {
       sdd=false;  
+    }
+    
+    if(!(mouseX>wds*2 && mouseX<wds*3.5 && mouseY>0 && mouseY<(wds+wds/12)*(save+1))) {
+      ldd=false;  
     }
   }
 }
@@ -664,6 +754,7 @@ class tb {
     n=size;
   }
   void d() {
+    strokeWeight(wds/20);
     for(int i=0; i<n; i++) {
       stroke(0);
       if(dm) {
@@ -681,49 +772,49 @@ class tb {
       switch(i) {
         case 0:
           textSize(s/1.2);
-          text("W",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("W",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 1:
           textSize(s/1.2);
-          text("I",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("I",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 2:
           textSize(s/1.2);
-          text("L",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("L",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 3:
           textSize(s/1.2);
-          text("S",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("S",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 4:
           textSize(s/1.2);
-          text("A",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("A",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 5:
           textSize(s/1.2);
-          text("X",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("X",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 6:
           textSize(s/1.6);
-          text("FA",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("FA",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 7:
           textSize(s/1.6);
-          text("FS",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("FS",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 8:
           textSize(s/2);
-          text("7SD",x,y+i*(s+cs/8-0.5)+s/1.2);
+          text("7SD",x,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 9:
           textSize(s/2);
-          text("BtD",x+s/12,y+i*(s+cs/8-0.5)+s/1.2);
+          text("BtD",x+s/12,y+i*(s+wds/20-0.5)+s/1.2);
         break;
         case 10:
           stroke(255,0,0);
           strokeWeight(10);
-          line(x+10,y+i*(s+cs/8-0.5)+10,x+s-10,y+i*(s+cs/8-0.5)+s-10);
-          line(x+s-10,y+i*(s+cs/8-0.5)+10,x+10,y+i*(s+cs/8-0.5)+s-10);
+          line(x+10,y+i*(s+wds/20-0.5)+10,x+s-10,y+i*(s+wds/20-0.5)+s-10);
+          line(x+s-10,y+i*(s+wds/20-0.5)+10,x+10,y+i*(s+wds/20-0.5)+s-10);
           
           stroke(0);
           if(dm) {
@@ -738,16 +829,16 @@ class tb {
           else {
             fill(0);  
           }
-          strokeWeight(cs/8);
+          strokeWeight(wds/20);
           
         break;
         case 11:
           textSize(s/1.2);
-          text("C",x+s/6,y+i*(s+cs/8-0.5)+s/1.2);
+          text("C",x+s/6,y+i*(s+wds/20-0.5)+s/1.2);
         break;
       }
       noFill();
-      rect(x,y+i*(s+cs/8-0.5),s,s);
+      rect(x,y+i*(s+wds/20-0.5),s,s);
     }
   }
 }
