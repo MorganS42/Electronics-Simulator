@@ -1,18 +1,13 @@
-import java.io.FilenameFilter;
+import java.io.*;
+import java.lang.*;
 
 ArrayList<Wire> wires = new ArrayList<Wire>(); 
 ArrayList<LED> leds = new ArrayList<LED>(); 
 ArrayList<Switch> swts = new ArrayList<Switch>(); 
 
-
-static final FilenameFilter FILTER = new FilenameFilter() {
-  @ Override boolean accept(File path, String name) {
-    name = name.toLowerCase();
-    return name.endsWith(".txt");
-  }
-};
-File f = dataFile("Electronics");
-String[] files = f.list(FILTER);
+String path = ""; 
+File dataFolder = new File(path); 
+String[] fileList = dataFolder.list(); 
 
 
 tb tools;
@@ -21,7 +16,7 @@ boolean click=false;
 
 boolean press=false;
 
-float cs=32;
+float cs=12;
 
 float tx;
 float ty;
@@ -41,12 +36,16 @@ int load=0;
 
 int save=0;
 
-float wds=110;
+float wds=50;
 
 boolean sdd=false;
 boolean ldd=false;
 
 ArrayList<PrintWriter> saves = new ArrayList<PrintWriter>();
+
+String pn = "";//sketchPath("");
+
+File folder = new File(pn);
 
 void setup() {
   //size(1800,1000);
@@ -65,7 +64,7 @@ void setup() {
   float bs=wds; //box size
   
   tools = new tb(bs,height/2-bs*5.5,bs,12);
-  ca(mi,700,350);
+  //ca(mi,700,350);
   
   for(int i=0; i<6; i++) {
     //sd(120+i*cs*9,300,3);
@@ -73,7 +72,10 @@ void setup() {
   
   //btd(300,height-100);
   
-  println(files.length);
+  save=folder.listFiles().length-1;
+  
+  println(pn.substring(0,pn.length()));
+  println(save);
 }
 
 void draw() {  
