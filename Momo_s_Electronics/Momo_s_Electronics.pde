@@ -1,14 +1,6 @@
-import java.io.*;
-import java.lang.*;
-
 ArrayList<Wire> wires = new ArrayList<Wire>(); 
 ArrayList<LED> leds = new ArrayList<LED>(); 
 ArrayList<Switch> swts = new ArrayList<Switch>(); 
-
-String path = ""; 
-File dataFolder = new File(path); 
-String[] fileList = dataFolder.list(); 
-
 
 tb tools;
 
@@ -41,16 +33,18 @@ float wds=50;
 boolean sdd=false;
 boolean ldd=false;
 
+boolean click2=false;
+
 ArrayList<PrintWriter> saves = new ArrayList<PrintWriter>();
 
-String pn = "";//sketchPath("");
+String pn = "D:/UserData/Morgan/OneDrive/Documents/Coding/Momo_s_Electronics"; //sketchPath("");
 
 File folder = new File(pn);
 
 void setup() {
   //size(1800,1000);
   fullScreen();
-  //frameRate(10);
+  //frameRate(1);
   strokeWeight(cs/8);  
   
   /*for(int i=0; i<3; i++) {
@@ -64,7 +58,7 @@ void setup() {
   float bs=wds; //box size
   
   tools = new tb(bs,height/2-bs*5.5,bs,12);
-  //ca(mi,700,350);
+  //ca(mi,400,300);
   
   for(int i=0; i<6; i++) {
     //sd(120+i*cs*9,300,3);
@@ -389,12 +383,13 @@ void sd() {
     for(int i=0; i<save; i++) {
       if(mouseX>0 && mouseX<wds*1.5 && mouseY>(wds+wds/12)*(i+1) && mouseY<(wds+wds/12)*(i+2)) {
         stroke(0,255,0);  
-        if(mousePressed) {
+        if(mousePressed && click2==false) {
+          click2=true;
+          
           fill(0,255,0);
           
-          if(!(saves.size()>i)) {
-            saves.add(createWriter(i+".txt"));
-          }
+          saves.add(createWriter(i+".txt"));
+          
           for(Wire wire : wires) {
             saves.get(i).println("w "+wire.x1+" "+wire.y1+" "+wire.x2+" "+wire.y2+" "+wire.s+" "+wire.i+" "+wire.id);  
           }
@@ -409,7 +404,8 @@ void sd() {
           saves.get(i).close();
         }
         else {
-          fill(0);  
+          fill(0);
+          click2=false;
         }
       }
       else {
@@ -758,6 +754,98 @@ class tb {
   void d() {
     strokeWeight(wds/20);
     for(int i=0; i<n; i++) {
+      if(mouseX>x && mouseX<x+s && mouseY>y+i*(s+wds/20-0.5) && mouseY<y+i*(s+wds/20-0.5)+s) {     
+        int bw=1;
+        int bh=1;
+        String text=" ";
+        
+        
+        textSize(24);
+        switch(i) {
+          case 0:
+            bw=350;
+            bh=190;
+            text="Wire. Receives a signal/input from node 1 and outputs the same signal in node 2. Light green when on, black when off.";               
+          break;
+          case 1:
+            bw=350;
+            bh=190;
+            text="Inverter. Receives a signal/input from node 1 and outputs the opposite signal in node 2. Dark green when on, blue when off.";  
+          break;
+          case 2:
+            bw=300;
+            bh=190;
+            text="LED/Light. Receives a signal/input and displays that input as either on or off. Yellow when on, black when off.";  
+          break;
+          case 3:
+            bw=400;
+            bh=190;
+            text="Switch. Is able to be switched on or off (by pressing space on it) and other objects such as wires will take it as an input. Light green when on, black when off.";  
+          break;
+          case 4:
+            bw=400;
+            bh=160;
+            text="AND Gate. Is made up from wires and inverters. The output will be on/1 only if both inputs are on  otherwise the output will be off/0";  
+          break;
+          case 5:
+            bw=440;
+            bh=300;
+            text="XOR Gate. Is made up from wires and inverters. The output will be on/1 only if one of the inputs are on otherwise the output will be off/0. The output comes from the top and it involves an AND gate so it also has an output for a AND gate coming from the side.";  
+          break;
+          case 6:
+            bw=640;
+            bh=420;
+            text="Full Adder. Is made up from AND gates, XOR gates and OR gates. Has two outputs, an answer and a caryout, it also has three inputs; input A, input B and a cary in. It adds the two inputs (and cary in) and then outputs the answer. The cary out and cary in can be hooked together with other Full Adders to make a binary adder with more bits. The answer/output comes out from the top, the caryout comes from the right near the top, input A comes from the bottom left, input B comes from the bottom right and the cary in comes from the near bottom right.";  
+          break;
+          case 7:
+            bw=660;
+            bh=440;
+            text="Full Subtracter. Is made up from AND gates, XOR gates and OR gates. Has two outputs, an answer and a caryout, it also has three inputs; input A, input B and a cary in. It subtracts input A (plus the 'cary in' multiplied by 2, becuase it's in base 2) from input B and then outputs the answer. The cary out and cary in can be hooked together with other Full Subtracters to make a binary subtracter with more bits. The answer/output comes out from the top, the caryout comes from the right near the top, input A comes from the bottom left, input B comes from the bottom right and the cary in comes from the middle left.";  
+          break;
+          case 8:
+            bw=460;
+            bh=300;
+            text="Seven Segment Display. Has seven segements made from LEDs/Lights which can represent any one digit number and many letters. Each segment has an input; if the segment is horizontal then it's powered from the left and if the segment is vertical then it's powered from the bottom.";  
+          break;
+          case 9:
+            bw=440;
+            bh=300;
+            text="Binary to Decimal (in Seven Segment Display format). Is made from AND gates and OR gates. It has four inputs for a BCD number (at the bottom) and seven outputs for a Seven Segment Display (at the top). It converts it from a BCD to a Seven Segment Display.";  
+          break;
+          case 10:
+            bw=300;
+            bh=150;
+            text="Delete. When this is selected, every time you click on something, it will delete it.";  
+          break;
+          case 11:
+            bw=400;
+            bh=190;
+            text="Clear. When this is clicked, it will delete everything and just. It will automatically switch back to selecting wire after it deletes everything.";  
+          break;
+          
+        }
+        
+        if(dm) {
+          stroke(150);  
+          fill(0);
+        }
+        else {
+          fill(255);  
+        }
+        
+        line(x+s,y+i*(s+wds/20-0.5)+s/2,x+s+bw/2,y+i*(s+wds/20-0.5)-(bh/1.2)/2);
+        rect(x+s+bw/2,y+i*(s+wds/20-0.5)-bh/1.2,bw,bh);
+        
+        if(dm) {
+          fill(255);  
+        }
+        else {
+          fill(0);  
+        }
+        
+        text(text,x+s+bw/2,y+i*(s+wds/20-0.5)-bh/1.2,x-s+bw,y+i*(s+wds/20-0.5)-bh/1.2+bh);
+      }
+      
       stroke(0);
       if(dm) {
         stroke(150);  
@@ -771,6 +859,7 @@ class tb {
       else {
         fill(0);  
       }
+      
       switch(i) {
         case 0:
           textSize(s/1.2);
