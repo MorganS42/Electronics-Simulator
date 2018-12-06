@@ -35,6 +35,9 @@ boolean ldd=false;
 
 boolean click2=false;
 
+boolean slow=true;
+int mf=20;
+
 ArrayList<PrintWriter> saves = new ArrayList<PrintWriter>();
 
 String pn = "D:/UserData/Morgan/OneDrive/Documents/Coding/Momo_s_Electronics"; //sketchPath("");
@@ -59,7 +62,7 @@ void setup() {
   
   tools = new tb(bs,height/2-bs*5.5,bs,12);
   //ca(mi,400,300);
-  
+ 
   for(int i=0; i<6; i++) {
     //sd(120+i*cs*9,300,3);
   }
@@ -470,6 +473,8 @@ class Wire {
   boolean i;
   boolean on=false;
   int id;
+  
+  int f=0;
   Wire(float x, float y, float xx, float yy, float size, boolean in, int idd) {
     x1=x;
     y1=y;
@@ -484,7 +489,25 @@ class Wire {
   
   void d() {
     fill(100);
-    if(on) {
+    
+    if(slow) {
+      stroke(0);  
+      if(i) {
+        stroke(0,0,180);
+        if(dm) {
+          stroke(0,0,240);    
+          fill(0,0,240);    
+        }
+      }
+      else if(dm) {
+        stroke(100);    
+        fill(0);    
+      }
+      
+      line(x1,y1,x2,y2);  
+    }
+    
+    if(on || f>0) {
       stroke(0,255,0);  
       if(i) {
         stroke(0,100,0);  
@@ -511,8 +534,49 @@ class Wire {
         fill(0);    
       }
     }
-    line(x1,y1,x2,y2);
+    if(slow==false) {
+      line(x1,y1,x2,y2);
+    }
+    else {
+      int nf;
+      if(f<mf) {
+        nf=f;
+      }
+      else {
+        nf=mf;  
+      }
+      line(x1,y1,x1+((x2-x1)/mf)*nf,y1+((y2-y1)/mf)*nf);
+    }
     ellipse(x1,y1,s,s);
+    if(slow) {
+      if(f>=mf) {
+        stroke(0,255,0);  
+        if(i) {
+          stroke(0,100,0);
+          if(dm) {
+            stroke(0,120,0);  
+            fill(0,120,0);  
+          }
+        }
+        else if(dm) {
+          fill(0,255,0);  
+        }    
+      }
+      else {
+        stroke(0);  
+      if(i) {
+        stroke(0,0,180);
+          if(dm) {
+            stroke(0,0,240);    
+            fill(0,0,240);    
+          }
+        }
+        else if(dm) {
+          stroke(100);    
+          fill(0);    
+        }  
+      }
+    }
     ellipse(x2,y2,s,s);
   }
   
@@ -552,7 +616,24 @@ class Wire {
         }
       }
     }
-    on=ton;
+    if(slow==false) {
+      on=ton;
+    }
+    else {
+      if(ton==true) {
+        f++;  
+      }
+      else {
+        f=0;  
+      }
+      
+      if(f>mf) {
+        on=true;    
+      }
+      else {
+        on=false;  
+      }
+    }
   }
 }
 
